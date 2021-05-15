@@ -44,28 +44,28 @@ colspecs <- cols(
 )
 
 #read files and rename columns
-vra_01_2020 <- read_delim("../data-raw/ANAC database/vra_01_2020.csv", 
+vra_01_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/percentuais-de-atrasos-e-cancelamentos-2/2020/vra_012020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_01_2020) <- VRA_COL_NAMES_12
 
-vra_02_2020 <- read_delim("../data-raw/ANAC database/vra_02_2020.csv", 
+vra_02_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/VRA_022020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_02_2020) <- VRA_COL_NAMES_12
 
-vra_03_2020 <- read_delim("../data-raw/ANAC database/vra_03_2020.csv", 
+vra_03_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_032020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_03_2020) <- VRA_COL_NAMES_12
 
-vra_04_2020 <- read_delim("../data-raw/ANAC database/vra_04_2020.csv", 
+vra_04_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_042020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
@@ -73,7 +73,7 @@ vra_04_2020 <- read_delim("../data-raw/ANAC database/vra_04_2020.csv",
 vra_04_2020 <- vra_04_2020[,c(1:3,5:12)]
 colnames(vra_04_2020) <- VRA_COL_NAMES_11
 
-vra_05_2020 <- read_delim("../data-raw/ANAC database/vra_05_2020.csv", 
+vra_05_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_05_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
@@ -81,7 +81,7 @@ vra_05_2020 <- read_delim("../data-raw/ANAC database/vra_05_2020.csv",
 #vra_05_2020 <- vra_05_2020[,c(1:3,5:12)]
 colnames(vra_05_2020) <- VRA_COL_NAMES_11
 
-vra_06_2020 <- read_delim("../data-raw/ANAC database/vra_06_2020.csv", 
+vra_06_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/VRA_06_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
@@ -89,7 +89,7 @@ vra_06_2020 <- read_delim("../data-raw/ANAC database/vra_06_2020.csv",
 #vra_05_2020 <- vra_05_2020[,c(1:3,5:12)]
 colnames(vra_06_2020) <- VRA_COL_NAMES_11
 
-vra_07_2020 <- read_delim("../data-raw/ANAC database/vra_07_2020.csv", 
+vra_07_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_07_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
@@ -97,7 +97,7 @@ vra_07_2020 <- read_delim("../data-raw/ANAC database/vra_07_2020.csv",
 #vra_05_2020 <- vra_05_2020[,c(1:3,5:12)]
 colnames(vra_07_2020) <- VRA_COL_NAMES_11
 
-vra_08_2020 <- read_delim("../data-raw/ANAC database/vra_08_2020.csv", 
+vra_08_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_08_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
@@ -105,7 +105,7 @@ vra_08_2020 <- read_delim("../data-raw/ANAC database/vra_08_2020.csv",
 #vra_05_2020 <- vra_05_2020[,c(1:3,5:12)]
 colnames(vra_08_2020) <- VRA_COL_NAMES_11
 
-vra_09_2020 <- read_delim("../data-raw/ANAC database/vra_09_2020.csv", 
+vra_09_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_09_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE,
                           col_types = cols(X2 = col_character()
@@ -114,7 +114,7 @@ vra_09_2020 <- read_delim("../data-raw/ANAC database/vra_09_2020.csv",
 vra_09_2020 <- relocate(vra_09_2020, X8, .after = X5)
 colnames(vra_09_2020) <- VRA_COL_NAMES_11
 
-vra_10_2020 <- read_delim("../data-raw/ANAC database/vra_10_2020.csv", 
+vra_10_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_10_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE,
                           col_types = cols(X2 = col_character()
@@ -123,7 +123,7 @@ vra_10_2020 <- read_delim("../data-raw/ANAC database/vra_10_2020.csv",
 vra_10_2020 <- relocate(vra_10_2020, X8, .after = X5)
 colnames(vra_10_2020) <- VRA_COL_NAMES_11
 
-vra_11_2020 <- read_delim("../data-raw/ANAC database/vra_11_2020.csv", 
+vra_11_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_11_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE,
                           col_types = cols(X2 = col_character()
@@ -132,7 +132,7 @@ vra_11_2020 <- read_delim("../data-raw/ANAC database/vra_11_2020.csv",
 #vra_10_2020 <- relocate(vra_10_2020, X8, .after = X5)
 colnames(vra_11_2020) <- VRA_COL_NAMES_11
 
-vra_12_2020 <- read_delim("../data-raw/ANAC database/vra_12_2020.csv", 
+vra_12_2020 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2020/vra_12_2020.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE,
                           col_types = cols(X2 = col_character()

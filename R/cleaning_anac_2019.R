@@ -37,84 +37,84 @@ colspecs <- cols(
 )
 
 #read files and rename columns
-vra_01_2019 <- read_delim("../data-raw/ANAC database/vra_01_2019.csv", 
+vra_01_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/percentuais-de-atrasos-e-cancelamentos-2/2019/vra_012019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_01_2019) <- VRA_COL_NAMES_12
 
-vra_02_2019 <- read_delim("../data-raw/ANAC database/vra_02_2019.csv", 
+vra_02_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/percentuais-de-atrasos-e-cancelamentos-2/2019/vra_022019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_02_2019) <- VRA_COL_NAMES_12
 
-vra_03_2019 <- read_delim("../data-raw/ANAC database/vra_03_2019.csv", 
+vra_03_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/percentuais-de-atrasos-e-cancelamentos-2/2019/vra_032019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_03_2019) <- VRA_COL_NAMES_12
 
-vra_04_2019 <- read_delim("../data-raw/ANAC database/vra_04_2019.csv", 
+vra_04_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/VRA_AbriL_2019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_04_2019) <- VRA_COL_NAMES_12
 
-vra_05_2019 <- read_delim("../data-raw/ANAC database/vra_05_2019.csv", 
+vra_05_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/ANAC_VRA_05_2019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_05_2019) <- VRA_COL_NAMES_12
 
-vra_06_2019 <- read_delim("../data-raw/ANAC database/vra_06_2019.csv", 
+vra_06_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/vra_062019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_06_2019) <- VRA_COL_NAMES_12
 
-vra_07_2019 <- read_delim("../data-raw/ANAC database/vra_07_2019.csv", 
+vra_07_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/vra_072019.csv", 
                           "\t", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_07_2019) <- VRA_COL_NAMES_12
 
-vra_08_2019 <- read_delim("../data-raw/ANAC database/vra_08_2019.csv", 
+vra_08_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/VRA_082019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_08_2019) <- VRA_COL_NAMES_12
 
-vra_09_2019 <- read_delim("../data-raw/ANAC database/vra_09_2019.csv", 
+vra_09_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/vra_092019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_09_2019) <- VRA_COL_NAMES_12
 
-vra_10_2019 <- read_delim("../data-raw/ANAC database/vra_10_2019.csv", 
+vra_10_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/VRA_102019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_10_2019) <- VRA_COL_NAMES_12
 
-vra_11_2019 <- read_delim("../data-raw/ANAC database/vra_11_2019.csv", 
+vra_11_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/vra_112019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
                           skip = 1)
 colnames(vra_11_2019) <- VRA_COL_NAMES_12
 
-vra_12_2019 <- read_delim("../data-raw/ANAC database/vra_12_2019.csv", 
+vra_12_2019 <- read_delim("https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/base-historica-1/vra/2019/vra_12_2019.csv", 
                           ";", escape_double = FALSE, trim_ws = TRUE,
                           col_names = FALSE, col_types = cols(X2 = col_character(),
                                                               X3 = col_character()),
