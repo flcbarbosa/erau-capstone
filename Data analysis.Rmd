@@ -1,0 +1,18 @@
+---
+title: "Data Analysis"
+output: word_document
+---
+
+```{r}
+#Loading packages
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(ggstatsplot)
+library(rmarkdown)
+library(ggpubr)
+library(PairedData)
+```
+
+
+

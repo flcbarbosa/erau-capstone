@@ -1,0 +1,491 @@
+---
+title: "ERAU Capstone"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, dpi = 300)
+```
+
+# Introduction
+
+This document was produced in RStudio, and it is currently a work in progress for the ERAU Capstone course. The main objective is to provide a detailed, step-by-step description of the data collection, preparation, and analysis processes, as agreed on the proposal. 
+
+Besides, it aims to allow traceability and reproducibility of the entire research, for potential future developments and academic discussion.
+
+The first lines below will install and load packages necessary to further steps.
+
+```{r, echo = TRUE}
+#Installing packages
+#install.packages("dplyr")
+#install.packages("ggstatsplot")
+#install.packages("lubridate")
+#install.packages("tidyverse")
+#install.packages("ggpubr")
+#install.packages("PairedData")
+
+#Loading packages
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(ggstatsplot)
+library(rmarkdown)
+library(ggpubr)
+library(PairedData)
+```
+
+## Listing useful filters
+
+The code below lists all the initial letters from Brazilian airports ICAO codes, according to DECEA. They will be useful on the future to filter the data accordingly.
+
+```{r, echo = TRUE}
+bra_prefixes <- c("^SB", "^SD", "^SI", "^SJ", "^SN", "^SS", "^SW", "^9P", "^ZZ")
+```
+
+# Data Collection
+
+Data was downloaded from https://www.gov.br/anac/pt-br/assuntos/dados-e-estatisticas/historico-de-voos . The website provides monthly csv files, that were saved in a folder "/ANAC_DATABASE", and renamed to a standardized form such as: "vra_01_2019.csv"; "vra_02_2019.csv"; "vra_03_2019" and so on up until "vra_12_2020.csv".
+
+# Data Preparation
+
+Before starting the analysis, data needs to be prepared in order to organize the variable names, clean invalid entries, delimit the geographical scope and other adjustments.
+
+The following scripts were used to read all files and create the base dataset files "vra_full_2019.csv" and "vra_full_2020.csv". They were written on separate R files for easier reading of this document. As they are already executed, and the base csv files are already saved, both lines were disabled (commented with #) 
+```{r, echo=TRUE}
+#source("./R/data/cleaning_anac_2019.R")
+#source("./R/data/cleaning_anac_2020.R")
+```
+
+Finally, both csv files were loaded into the current environment, as dataframes "vra_2019" and "vra_2020", which allows to operate them. The variable names and types (categorical x continous) were also adjusted. 
+```{r}
+vra_2019 <- read_csv("./data/vra_full_2019.csv")
+vra_2020 <- read_csv("./data/vra_full_2020.csv")
+
+tidy_vra <- . %>% mutate(ICAO_Airline = as.factor(ICAO_Airline),
+                         Flight_number = as.factor(paste0(ICAO_Airline, as.character(Flight_number))),
+                         Authorization_type = as.factor(Authorization_type),
+                         Operation_type = as.factor(Operation_type),
+                         ADEP = as.factor(ADEP),
+                         ADES = as.factor(ADES),
+                         Status = as.factor(Status),
+                         Justification_code = as.factor(Justification_code))
+
+
+vra_2019 <- vra_2019 %>% tidy_vra()
+vra_2020 <- vra_2020 %>% tidy_vra()
+
+```
+
+Below, the reader can find a summary of 2019 dataset. ANAC database has `r nrow(vra_2019)` entries, including realized and canceled flights, but still many invalid entries ("NAs").
+```{r, echo = TRUE}
+glimpse(vra_2019)
+```
+
+Finally, a summary of the 2020 dataset. ANAC database has `r nrow(vra_2020)` entries, including realized and canceled flights, but still many invalid entries ("NAs").
+```{r, echo = TRUE}
+glimpse(vra_2020)
+```
+
+## Filtering invalid data, and only realized flights
+
+The code below filters the observations for which the data entry is invalid, e.g. "NA". In addition, it also removes canceled and not executed flights. 
+```{r, echo=TRUE}
+filter_na <- . %>%  filter(!is.na(ADEP) & !is.na(ADES) & !is.na(SOBT) & !is.na(AOBT) & !is.na(SIBT) & !is.na(AIBT)) %>% filter(Status == "REALIZADO")
+
+vra_2019_realizado <- vra_2019 %>% filter_na()
+vra_2020_realizado <- vra_2020 %>% filter_na()
+```
+
+### Check the size of the datasets after data filtering
+
+Up until now, after removing invalid entries, it is important to check the sample size.
+```{r}
+a <- nrow(vra_2019)
+b <- nrow(vra_2020)
+total_rows <- c(a,b)
+
+c <- nrow(vra_2019_realizado)
+d <- nrow(vra_2020_realizado)
+total_realized <- c(c,d)
+
+pencentual_realizado <- c(c/a,d/b)
+
+```
+The 2019 sample has `r a` flights, from which `r c` (`r c/a*100`%) were realized.
+
+The 2020 sample has `r b` flights, from which `r d` (`r d/b*100`%) were realized.
+
+# Treatment of Outliers and Filtering Brazilian Data
+
+Preliminarily, it is possible to identify some sources of outliers. To treat then, some assumptions were made. The work will remove:
+
+* Local flights (i.e. flights with the same origin and destination)
+* Arrival delays lower than -6 hours and higher than 6 hours
+* Flight times less than 15 minutes or higher than 12 hours
+
+## Removing local flights
+
+The code below will remove local flights from the dataset.
+```{r, echo=TRUE}
+no_local <- . %>% filter(as.character(ADEP) != as.character(ADES))
+
+vra_2019_realizado_loc <- vra_2019_realizado %>% no_local()
+vra_2020_realizado_loc <- vra_2020_realizado %>% no_local()
+```
+
+### Check the size of the datasets after removing local flights
+```{r}
+e <- nrow(vra_2019_realizado_loc)
+f <- nrow(vra_2020_realizado_loc)
+total_realized_loc <- c(e,f)
+
+pencentual_realizado_loc <- c(e/a,f/b)
+```
+Up until now, 2019 sample has `r a` flights, from which `r e` (`r e/a*100`%) were realized, non-locals. This is the base 2019 sample.
+
+Up until now, 2020 sample has `r b` flights, from which `r f` (`r f/b*100`%) were realized, non-locals. This is the base 2020 sample.
+
+## Regarding the arrival delays branch of the research
+The code below creates a reduced table with only the relevant data for delay analysis - airport, year, and arrival delay. 
+
+Relevant assumptions:
+
+* Early arrivals (Delay < 0) must be adjusted to 0 minutes of delay
+* Only arrival delays between -6 and 6 hours.
+
+```{r}
+#Filtering only Brazilian airports
+only_bra_airports <- . %>% filter(grepl(paste(bra_prefixes, collapse = "|"), ADES))
+
+vra_2019_bra <- vra_2019_realizado_loc %>% only_bra_airports()
+vra_2020_bra <- vra_2020_realizado_loc %>% only_bra_airports()
+
+# 2019 sample size bra arrivals - 877301
+# 2020 sample size bra arrivals - 427588
+
+#Selecting only relevant variables and calculating arrival delays
+relevant_dly_variables <- . %>%
+  transmute(ADES = ADES,
+            YR = as.factor(year(AOBT)),
+            ARR_DLY = as.double(difftime(AIBT, SIBT, units = "mins")),
+            ARR_DLY_ADJ = case_when(ARR_DLY <= 0 ~ 0,TRUE ~ ARR_DLY))
+
+arrdly_2019 <- vra_2019_bra %>% relevant_dly_variables() %>% filter(YR == 2019 & ARR_DLY >= -360 & ARR_DLY_ADJ <= 360)
+
+arrdly_2020 <- vra_2020_bra %>% relevant_dly_variables() %>% filter(YR == 2020 & ARR_DLY >= -360 & ARR_DLY_ADJ <= 360) 
+
+# 2019 (+/- 6 hours) - 875794
+# 2020 (+/- 6 hours) - 426552
+
+```
+As a result, 2019 delays dataset was reduced to this:
+```{r, echo=TRUE}
+glimpse(arrdly_2019)
+```
+And 2020 delays dataset was reduced to this:
+```{r, echo=TRUE}
+glimpse(arrdly_2020)
+```
+
+## Regarding the flight times branch of the research
+
+The code below creates a reduced table with only the relevant data for flight time analysis - departure airport, destination airport, year, and flight duration. Relevant assumptions:
+
+* Only flights with Brazilian airports at origin or destination
+* Only flights with duration between 15 minutes and 12 hours
+* No local flights
+
+```{r}
+#Filtering only Brazilian airports at origin or destination
+ori_des_bra_airports <- . %>% filter(!(!grepl(paste(bra_prefixes, collapse = "|"), ADEP) & !grepl(paste(bra_prefixes, collapse = "|"), ADES)))
+
+
+flt_time <- . %>% transmute(ADEP = ADEP,
+                            ADES = ADES,
+                            YR = as.factor(year(AOBT)),
+                            FLT_TIME = as.double(difftime(AIBT, AOBT, units = "hours")))
+
+flttimes_2019 <- vra_2019_realizado_loc %>% flt_time() %>%
+  ori_des_bra_airports() %>% filter(YR == 2019 & FLT_TIME > 0.25 & FLT_TIME <= 12)
+
+flttimes_2020 <- vra_2020_realizado_loc %>% flt_time() %>%
+  ori_des_bra_airports() %>% filter(YR == 2020 & FLT_TIME > 0.25 & FLT_TIME <= 12)
+
+
+#summary(flttimes_2019)
+#summary(flttimes_2020)
+
+#2019 flights (between 15 minutes and 10 hours, no locals) - 940234
+#2020 flights (between 15 minutes and 10 hours, no locals) - 449974
+```
+As a result, 2019 flight duration dataset was reduced to this:
+```{r, echo=TRUE}
+glimpse(flttimes_2019)
+```
+And 2020 flight duration dataset was reduced to this:
+```{r, echo=TRUE}
+glimpse(flttimes_2020)
+```
+
+# Data Transformation to Proper Research Tables
+
+Finally, both delay and flight duration datasets must be transformed to the proposal's approved format.
+
+## Airports mean arrival delays
+
+Here, another assumption must be made to prevent outliers:
+
+* Only airports with 10 or more arrivals
+```{r}
+mean_delays_2019 <- arrdly_2019 %>% group_by(AIRPORT = ADES) %>% summarise(ARRIVALS_2019 = n(), AVG_DELAY_2019 = mean(ARR_DLY_ADJ)) %>% arrange(desc(ARRIVALS_2019))
+
+mean_delays_2020 <- arrdly_2020 %>% group_by(AIRPORT = ADES) %>% summarise(ARRIVALS_2020 = n(), AVG_DELAY_2020 = mean(ARR_DLY_ADJ)) %>% arrange(desc(ARRIVALS_2020))
+
+mean_delays_ft <- inner_join(mean_delays_2019, mean_delays_2020) %>% arrange(desc(ARRIVALS_2019))
+
+#Filtering airports with 10+ arrivals
+
+mean_delays <- mean_delays_ft %>% filter(ARRIVALS_2019 >= 10) %>% transmute(AIRPORT, AVG_DELAY_2019, AVG_DELAY_2020)
+mean_delays
+```
+As a result, the final table is ready for analysis, containing `r nrow(mean_delays)` airports.
+```{r, echo=TRUE}
+mean_delays
+```
+
+
+## Average flight time between city pairs
+
+Here, another assumption must be made to prevent outliers:
+
+* Only routes with 730 or more flights (around 2 flights per day in average)
+```{r}
+avg_city_pairs_2019 <- flttimes_2019 %>% mutate(CITY_PAIR = paste(ADEP, ADES, sep = "-"), .before = ADEP) %>% group_by(CITY_PAIR) %>% summarise(FLTS_2019 = n(), AVG_FLT_TIME_2019 = mean(FLT_TIME)) %>% arrange(desc(FLTS_2019))
+
+avg_city_pairs_2020 <- flttimes_2020 %>% mutate(CITY_PAIR = paste(ADEP, ADES, sep = "-"), .before = ADEP) %>% group_by(CITY_PAIR) %>% summarise(FLTS_2020 = n(), AVG_FLT_TIME_2020 = mean(FLT_TIME)) %>% arrange(desc(FLTS_2020))
+
+avg_city_pairs <- inner_join(avg_city_pairs_2019, avg_city_pairs_2020)
+
+#Filtering only routes with 730 flights
+avg_city_pairs <- avg_city_pairs %>% filter(FLTS_2019 >= 730) %>% arrange(desc(FLTS_2019))
+
+#summary(avg_city_pairs)
+```
+As a result the flight times table is presented below:
+```{r, echo=TRUE}
+avg_city_pairs
+summary(avg_city_pairs)
+```
+However, it is still necessary to normalize the 2020 values to 2019 references. 
+
+As a result, the final table for analysis is presented below, with `r nrow(avg_city_pairs)` routes :
+```{r}
+norm_city_pairs <- avg_city_pairs %>%
+  transmute(CITY_PAIR = CITY_PAIR,
+            NORM_FLT_2020 = round(FLTS_2020/FLTS_2019, digits = 4),
+            NORM_FLT_TIME_2020 = round(AVG_FLT_TIME_2020/AVG_FLT_TIME_2019, digits = 4)) 
+
+norm_city_pairs <- norm_city_pairs #%>% arrange(desc(NORM_FLT_2020))
+#summary(norm_city_pairs)
+```
+
+```{r}
+norm_city_pairs
+```
+# Data Analysis
+
+## Arrival delays paired T-test
+
+```{r}
+mean_delays_lt <- mean_delays_ft %>% mutate(DECREASE_ARR = ARRIVALS_2020 < ARRIVALS_2019, DECREASE_DEL = AVG_DELAY_2020 < AVG_DELAY_2019)
+head(mean_delays_lt, 10)
+tail(mean_delays_lt, 10)
+summary(mean_delays_lt)
+
+```
+
+
+```{r}
+md_long <- mean_delays %>% pivot_longer(cols = starts_with("AVG_DELAY"), names_prefix = "^AVG_DELAY_", names_to = "YEAR", values_to = "AVG_DELAY")
+#md_long
+
+md_long_summary_stats <- md_long %>% group_by(YEAR) %>% summarise(count = n(), mean = mean(AVG_DELAY), median = median(AVG_DELAY), sd = sd(AVG_DELAY))
+md_long_summary_stats
+
+#Normality checks are not necessary,for it is a big sample, but if one wants to see, run below
+
+#diff_distribution <- mean_delays$AVG_DELAY_2020 - mean_delays$AVG_DELAY_2019
+#ggdensity(diff_distribution)
+#ggqqplot(diff_distribution)
+#shapiro.test(diff_distribution)
+
+ggboxplot(md_long, x = "YEAR", y = "AVG_DELAY")
+
+#boxplot(mean_delays$AVG_DELAY_2019, mean_delays$AVG_DELAY_2020)
+
+md_long %>% ggplot() +
+  geom_freqpoly(aes(x = AVG_DELAY, color = YEAR, linetype = YEAR)) +
+  #geom_vline(data = mean_delays, aes(xintercept = mean(AVG_DELAY_2019)), color="red") +
+  #geom_vline(data = mean_delays, aes(xintercept=mean(AVG_DELAY_2020)), color="blue") +
+  #geom_text(data = mean_delays, aes(x = mean(AVG_DELAY_2019),
+   #             y = 29,
+    #            label = paste("2019 mean =", round(mean(AVG_DELAY_2019), 2))),
+     #       size = 4,
+      #      nudge_x = 6,
+       #     color = "red") +
+  #geom_text(data = mean_delays, aes(x = mean(AVG_DELAY_2020),
+        #        y = 29,
+        #        label = paste("2020 mean =", round(mean(AVG_DELAY_2020), 2))),
+        #    size = 4,
+        #    nudge_x = -6,
+        #    color = "blue") +
+  labs(y = "Number of Airports", x = "Average Delay (min/flight)") +
+  scale_x_continuous(n.breaks = 8) +
+  theme_minimal() +
+  #scale_colour_manual(values = c("red", "blue")) +
+  theme(legend.position = "top") +
+  scale_color_manual(name = "Year", values = c("red", "blue")) +
+  scale_linetype_manual(name = "Year", values = c(5,1))
+
+#md_long %>% ggplot() +
+#  geom_histogram(aes(x = AVG_DELAY, fill = YEAR), #position = "dodge")
+res2 <- t.test(data = md_long, AVG_DELAY ~ YEAR, paired = TRUE)
+res2
+
+```
+
+
+```{r}
+#What happens if only top 50
+top <- 50
+mean_delays_top <- mean_delays_ft %>% slice_max(order_by = ARRIVALS_2019, n = top)
+mean_delays_top
+
+t.test(x = mean_delays_top$AVG_DELAY_2019, y = mean_delays_top$AVG_DELAY_2020, paired = TRUE)
+
+md_long_top <- mean_delays_top %>% dplyr::select(AIRPORT, AVG_DELAY_2019, AVG_DELAY_2020) %>% pivot_longer(cols = starts_with("AVG_DELAY"), names_prefix = "^AVG_DELAY_", names_to = "YEAR", values_to = "AVG_DELAY")
+md_long_top
+
+md_long_top_summary_stats <- md_long_top %>% group_by(YEAR) %>% summarise(count = n(), mean = mean(AVG_DELAY), median = median(AVG_DELAY), sd = sd(AVG_DELAY))
+md_long_top_summary_stats
+
+md_long_top %>% ggplot() +
+  geom_freqpoly(aes(x = AVG_DELAY, color = YEAR)) +
+  #geom_vline(data = mean_delays_top, aes(xintercept = mean(AVG_DELAY_2019)), color="red") +
+  #geom_vline(data = mean_delays_top, aes(xintercept=mean(AVG_DELAY_2020)), color="blue") +
+  labs(y = "Number of Airports (Top 50 only)", x = "Average Delay", color = "Year") +
+  scale_x_continuous(n.breaks = 8) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_minimal() +
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("red", "blue"))
+
+```
+
+```{r}
+#The more the flights, the more the delays?
+
+mean_delays_ft
+
+g1 <- mean_delays_ft %>% slice_max(order_by = ARRIVALS_2019, n = 999) %>%
+  ggplot() +
+  geom_point(aes(x = ARRIVALS_2019, y = AVG_DELAY_2019), size = 2, alpha = 0.3, color = "red") +
+  scale_x_continuous(labels = scales::label_number()) +
+  scale_y_continuous(limits = c(0,30)) +
+  theme_minimal() +
+  labs(x = "Arrivals 2019", y = "Average delay (min/flight)")
+
+g2 <- mean_delays_ft %>% slice_max(order_by = ARRIVALS_2019, n = 999) %>%
+  ggplot() +
+  geom_point(aes(x = ARRIVALS_2020, y = AVG_DELAY_2020), size = 2, alpha = 0.3, color = "blue") +
+  scale_x_continuous(labels = scales::label_number()) +
+  scale_y_continuous(limits = c(0,30), position = "right") +
+  theme_minimal() +
+  labs(x = "Arrivals 2020") +
+  theme(axis.title.y = element_blank())
+
+g1 + g2
+
+
+```
+```{r}
+#The more the drop in arrivals, less delays?
+mean_delays_ft
+mean_delays_ft %>% transmute(AIRPORT, ARR_DIFF = ARRIVALS_2019 - ARRIVALS_2020, DELAY_DIFF = AVG_DELAY_2019 - AVG_DELAY_2020) %>%
+  ggplot() +
+  geom_point(aes(x = ARR_DIFF, y = DELAY_DIFF), alpha = 0.3, size = 2) +
+  labs(x = "Difference in arrivals", y = "Difference in average delay") +
+  theme_pubclean()
+
+```
+
+
+
+## Average flight time between city pairs correlation test
+```{r}
+avg_city_pairs
+summary(avg_city_pairs)
+
+```
+
+```{r}
+norm_city_pairs
+summary(norm_city_pairs)
+norm_city_pairs %>% mutate(decrease = NORM_FLT_2020 < 1) %>% summary()
+```
+
+```{r}
+
+#Check normality
+shapiro.test(norm_city_pairs$NORM_FLT_2020)
+shapiro.test(norm_city_pairs$NORM_FLT_TIME_2020)
+
+#shapiro.test(testdb$NORM_FLT_2020)
+#shapiro.test(testdb$NORM_FLT_TIME_2020)
+
+
+# Data is different from normal distribution - requires non-parametric correlation method (Spearman)
+
+ft <- norm_city_pairs %>%
+  mutate(long = NORM_FLT_TIME_2020 > 1, SHORTER_FLT_TIME = case_when(
+    long == TRUE ~ "Increased",
+    TRUE ~ "Decreased or mantained")) %>% group_by(SHORTER_FLT_TIME)
+
+#filter only the 0-100 percentiles
+#testdb <- ft %>% filter(NORM_FLT_TIME_2020 <= quantile(NORM_FLT_TIME_2020, 1) & NORM_FLT_TIME_2020 >= quantile(NORM_FLT_TIME_2020, 0))
+
+#summary(testdb)
+
+ft %>% ggplot() +
+  geom_point(aes(x = NORM_FLT_2020, y = NORM_FLT_TIME_2020, color = SHORTER_FLT_TIME, shape = SHORTER_FLT_TIME), size = 2, alpha = 0.5) +
+  scale_x_continuous(limits = c(0,1)) +
+  scale_y_continuous(limits = c(0.9,1.1)) +
+  labs(x = "Number of flights\n(relative to 2019)",
+       y = "Duration of flight\n(relative to 2019)") +
+  theme_minimal() +
+  theme(legend.position = "top") +
+  stat_cor(aes(x = ft$NORM_FLT_2020, y = ft$NORM_FLT_TIME_2020), method = "kendall", cor.coef.name = "tau", digits = 1) +
+  scale_color_manual(name = "Flight duration\n(relative to 2019)", values = c("red", "blue")) +
+  scale_shape_manual(name = "Flight duration\n(relative to 2019)", values = c(19, 17))
+  
+  
+#ggscatter(data = testdb,
+#          x = "NORM_FLT_2020",
+#          y = "NORM_FLT_TIME_2020",
+#          size = 0.7,
+#          add = "reg.line",
+#          conf.int = TRUE,
+#          cor.coef = TRUE,
+#          cor.coef.coord = c(0.7,1.035),
+#          cor.method = "kendall",
+#          cor.coeff.args = list(cor.coef.name = "tau"),
+#          xlab = "Number of flights\n(relative to 2019)",
+#          ylab = "Duration of flights\n(relative to 2019)",
+#          ylim = c(0.9,1.1),
+#          ggtheme = theme_minimal()
+#          )
+
+cor.test(ft$NORM_FLT_2020, ft$NORM_FLT_TIME_2020, method = "kendall")
+
+
+```
