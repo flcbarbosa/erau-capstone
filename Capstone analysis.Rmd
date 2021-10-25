@@ -23,15 +23,17 @@ The first lines below will install and load packages necessary to further steps.
 #install.packages("tidyverse")
 #install.packages("ggpubr")
 #install.packages("PairedData")
+#install.packages("patchwork")
 
 #Loading packages
 library(dplyr)
 library(lubridate)
 library(tidyverse)
-library(ggstatsplot)
+#library(ggstatsplot)
 library(rmarkdown)
 library(ggpubr)
 library(PairedData)
+library(patchwork)
 ```
 
 ## Listing useful filters
@@ -308,7 +310,7 @@ summary(mean_delays_lt)
 
 ```{r}
 md_long <- mean_delays %>% pivot_longer(cols = starts_with("AVG_DELAY"), names_prefix = "^AVG_DELAY_", names_to = "YEAR", values_to = "AVG_DELAY")
-#md_long
+md_long
 
 md_long_summary_stats <- md_long %>% group_by(YEAR) %>% summarise(count = n(), mean = mean(AVG_DELAY), median = median(AVG_DELAY), sd = sd(AVG_DELAY))
 md_long_summary_stats
@@ -382,6 +384,35 @@ md_long_top %>% ggplot() +
   scale_color_manual(values = c("red", "blue"))
 
 ```
+
+```{r}
+#What happens if measured through minutes/delayed flight?
+fb19 <- arrdly_2019 %>% mutate(DELAY15 = ARR_DLY_ADJ >= 15, DELAY30 = ARR_DLY_ADJ >= 30)
+n_delayedflights_15_19 <- fb19[fb19$DELAY15 == TRUE,] %>% nrow()
+punctuality_15_2019 <- (1 - (n_delayedflights_15_19/nrow(fb19)))*100
+punctuality_15_2019
+
+
+fb20 <- arrdly_2020 %>% mutate(DELAY15 = ARR_DLY_ADJ >= 15, DELAY30 = ARR_DLY_ADJ >= 30)
+n_delayedflights_15_20 <- fb20[fb20$DELAY15 == TRUE,] %>% nrow()
+punctuality_15_2020 <- (1 - (n_delayedflights_15_20/nrow(fb20)))*100
+punctuality_15_2020
+
+a <- fb19 %>% filter(DELAY15 == TRUE) %>% group_by(ADES, YR) %>% summarize(AVG_DELAY = mean(ARR_DLY_ADJ))
+b <- fb20 %>% filter(DELAY15 == TRUE) %>% group_by(ADES, YR) %>% summarize(AVG_DELAY = mean(ARR_DLY_ADJ))
+c <- bind_rows(a,b) %>% group_by(YR)
+
+c
+
+c %>% group_by(YR) %>% summarize(count = n(), mean = mean(AVG_DELAY), sd = sd(AVG_DELAY))
+
+summary(c)
+
+c %>% ggplot() +
+  geom_freqpoly(aes(x=AVG_DELAY, color = YR))
+
+```
+
 
 ```{r}
 #The more the flights, the more the delays?
