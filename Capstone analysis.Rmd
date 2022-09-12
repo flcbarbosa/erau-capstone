@@ -55,8 +55,8 @@ Before starting the analysis, data needs to be prepared in order to organize the
 The following scripts were used to read all files and create the base dataset files "vra_full_2019.csv" and "vra_full_2020.csv". They were written on separate R files for easier reading of this document. As they are already executed, and the base csv files are already saved, both lines were disabled (commented with #) 
 ```{r, echo=TRUE}
 #Run the lines below only rhe first time, to load the files. If you have the files already, not necessary
-#source("./R/data/cleaning_anac_2019.R")
-#source("./R/data/cleaning_anac_2020.R")
+#source("./R/cleaning_anac_2019.R")
+#source("./R/cleaning_anac_2020.R")
 ```
 
 Finally, both csv files were loaded into the current environment, as dataframes "vra_2019" and "vra_2020", which allows to operate them. The variable names and types (categorical x continous) were also adjusted. 
